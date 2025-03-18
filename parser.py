@@ -79,6 +79,8 @@ def p_action(p):
     elif action_name == "CONV_FLOAT":
         p[0] = ("CONV_FLOAT", p[1])
 
+    p[0] = [p[len(p) - 1], p[0]]
+
 def p_forloop_line(p):
     '''
     forloop_line : BELOW OBJECT LITERAL TIMES_LOOP
@@ -139,8 +141,15 @@ def p_line(p):
 
     if len(p) == 3:
         if p[2] in base_forms.values():
-            p[0] = [p[1]]
+            verb = p[1][0]
+            statement = p[1][1]
+            if p[2] != base_forms[verb]:
+                raise ValueError("Invalid verb: '{}{}'; did you mean '{}{}'?".format(verb, p[2], verb, base_forms[verb]))
+            p[0] = [statement]
         elif p[2] in negative_forms.values():
+            verb = p[1][0]
+            if p[2] != negative_forms[verb]:
+                raise ValueError("Invalid verb: '{}{}'; did you mean '{}{}'?".format(verb, p[2], verb, negative_forms[verb]))
             p[0] = [("SKIP")]
         elif p[1][0] == "FOR":
             p[0] = [("FOR", p[1][1], p[2])]
@@ -150,8 +159,15 @@ def p_line(p):
             p[0] = [("WHILE", p[1][1], p[2])]
     else:
         if p[2] in te_forms.values():
-            p[0] = [p[1]] + p[3]
+            verb = p[1][0]
+            statement = p[1][1]
+            if p[2] != te_forms[verb]:
+                raise ValueError("Invalid verb: '{}{}'; did you mean '{}{}'?".format(verb, p[2], verb, te_forms[verb]))
+            p[0] = [statement] + p[3]
         elif p[2] in negative_te_forms.values():
+            verb = p[1][0]
+            if p[2] != negative_te_forms[verb]:
+                raise ValueError("Invalid verb: '{}{}'; did you mean '{}{}'?".format(verb, p[2], verb, negative_te_forms[verb]))
             p[0] = [("SKIP")] + p[3]
         elif p[1][0] == "FOR":
             p[0] = [("FOR", p[1][1], p[2])] + p[4]
