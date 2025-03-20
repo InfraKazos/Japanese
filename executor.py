@@ -85,6 +85,9 @@ class Executor:
                 print(self.interpret_literal(line[1]))
             case "END":
                 exit()
+            case "FOR":
+                for i in range(self.interpret_literal(line[1])):
+                    self.runblock(line[2])
             case "SKIP":
                 pass #lol
 
